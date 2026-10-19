@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12f52802c912d764c9fee52639056435, type: 3}
+  m_Name: Slime
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyData
+  displayName: Slime
+  sprite: {fileID: 4533831080690137755, guid: 5001a17d7e24a1d4abcc67b3a409664f, type: 3}
+  animatorController: {fileID: 7575504571492729332, guid: 5001a17d7e24a1d4abcc67b3a409664f, type: 3}
+  behavior: {fileID: 11400000, guid: 69fba4e06e7e50844bf2b5605af5f8fe, type: 2}
+  maxHealth: 100
+  damage: 25
+  attackCooldown: 5
+  contactRadius: 0.25
+  moveSpeed: 1
+  xpDrop: 1000

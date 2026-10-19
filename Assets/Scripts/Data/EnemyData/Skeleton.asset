@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12f52802c912d764c9fee52639056435, type: 3}
+  m_Name: Skeleton
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyData
+  displayName: Skeleton
+  sprite: {fileID: 4354231566380549168, guid: 29c6a687db96da94bb0353dad68096f7, type: 3}
+  animatorController: {fileID: 9100000, guid: 53f2fbc53eb5a3349b8e806cc07cd7f4, type: 2}
+  behavior: {fileID: 11400000, guid: 2aa9f301e91658f478c50e6e66c10cf0, type: 2}
+  maxHealth: 5
+  damage: 5
+  attackCooldown: 1
+  contactRadius: 0.25
+  moveSpeed: 2
+  xpDrop: 1
