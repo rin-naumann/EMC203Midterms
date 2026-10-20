@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   displayName: Slime
   sprite: {fileID: 4533831080690137755, guid: 5001a17d7e24a1d4abcc67b3a409664f, type: 3}
-  animatorController: {fileID: 7575504571492729332, guid: 5001a17d7e24a1d4abcc67b3a409664f, type: 3}
+  animatorController: {fileID: 9100000, guid: ddfc78db7775edf4ca8d18fbb61a7738, type: 2}
   behavior: {fileID: 11400000, guid: 69fba4e06e7e50844bf2b5605af5f8fe, type: 2}
   maxHealth: 100
   damage: 25

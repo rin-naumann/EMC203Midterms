@@ -11,6 +11,7 @@ public class Enemy : MonoBehaviour, IPoolable, IDamageable
     private float currentHealth;
 
     public EnemyData Data => data;
+    public Animator Animator => animator;
     public float CurrentHealth => currentHealth;
     public bool IsAlive => currentHealth > 0f;
     public float AttackTimer;
