@@ -27,6 +27,7 @@ public class EnemyManager : MonoBehaviour
         for (int i  = enemies.Count - 1; i >= 0; i--)
         {
             if (i >= enemies.Count) continue;
+            enemies[i].FaceTowards(playerPosition.x);
             enemies[i].Tick(deltaTime, playerPosition);
         }
     }

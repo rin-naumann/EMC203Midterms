@@ -4,11 +4,12 @@ using UnityEngine;
 /// Idle until the attack cooldown ends, then jump up off the screen. While it is away a landing
 /// indicator shows where the player was standing, and after a moment the slime falls onto that spot.
 ///   Idle      - stands still, cooldown counting down.
+///   Winding   - the Launch animation has started, but the slime is still on the ground.
 ///   Rising    - moves up out of view.
 ///   Targeting - hidden and untouchable; the landing spot is locked in and the indicator shows.
 ///   Falling   - reappears above the landing spot and drops onto it.
 ///   Landing   - still falling, but the Land animation has started so its ground frame hits at impact.
-/// Animator: "Launch" fires when it leaves the ground, "Land" fires shortly before impact.
+/// Animator: "Launch" fires a few frames before it leaves the ground, "Land" fires shortly before impact.
 /// Land -> Idle is an Animator transition on exit time, so no Idle trigger is needed.
 /// </summary>
 [CreateAssetMenu(fileName = "Slime", menuName = "Enemy Behaviors/Slime")]
@@ -20,6 +21,7 @@ public class EBSlime : EnemyBehavior
     private const int Targeting = 2;
     private const int Falling = 3;
     private const int Landing = 4;
+    private const int Winding = 5;
 
     private static readonly int LaunchHash = Animator.StringToHash("Launch");
     private static readonly int LandHash = Animator.StringToHash("Land");
@@ -29,6 +31,12 @@ public class EBSlime : EnemyBehavior
     [SerializeField] private float jumpHeight = 12f;
     [SerializeField] private float riseTime = 0.6f;
     [SerializeField] private float fallSpeed = 30f;
+
+    [Header("Launch Animation Sync")]
+    [Tooltip("Sample rate (frames per second) of the Launch clip.")]
+    [SerializeField] private float launchClipFps = 12f;
+    [Tooltip("How many Launch frames play on the ground before the slime starts moving up.")]
+    [SerializeField] private int launchWindupFrames = 4;
 
     [Header("Land Animation Sync")]
     [Tooltip("Sample rate (frames per second) of the Land clip. Check it in the Animation window.")]
@@ -57,6 +65,7 @@ public class EBSlime : EnemyBehavior
         switch (enemy.State)
         {
             case Idle: TickIdle(enemy, deltaTime); break;
+            case Winding: TickWinding(enemy, deltaTime); break;
             case Rising: TickRising(enemy, deltaTime, playerPosition); break;
             case Targeting: TickTargeting(enemy, deltaTime); break;
             case Falling: TickFalling(enemy, deltaTime, playerPosition); break;
@@ -69,13 +78,22 @@ public class EBSlime : EnemyBehavior
         enemy.AttackTimer -= deltaTime;
         if (enemy.AttackTimer > 0f) return;
 
-        // Can't be hurt from the moment it leaves the ground.
+        // Start the Launch animation now, but stay on the ground until its windup frames have played.
+        enemy.Animator.ResetTrigger(LandHash);
+        enemy.Animator.SetTrigger(LaunchHash);
+        enemy.State = Winding;
+        enemy.AttackTimer = launchWindupFrames / launchClipFps;
+    }
+
+    private void TickWinding(Enemy enemy, float deltaTime)
+    {
+        enemy.AttackTimer -= deltaTime;
+        if (enemy.AttackTimer > 0f) return;
+
+        // Windup finished: leave the ground. Can't be hurt from this moment.
         enemy.IsInvulnerable = true;
         enemy.State = Rising;
         enemy.AttackTimer = riseTime;
-
-        enemy.Animator.ResetTrigger(LandHash);
-        enemy.Animator.SetTrigger(LaunchHash);
     }
 
     private void TickRising(Enemy enemy, float deltaTime, Vector3 playerPosition)
@@ -132,13 +150,10 @@ public class EBSlime : EnemyBehavior
 
     private void Land(Enemy enemy, Vector3 playerPosition)
     {
-        // Circle distance check around the landing spot, squared so there is no square root.
+        // Circle overlap around the landing spot: slam radius plus the player's body radius. Squared, so no square root.
         float sqrDistance = (playerPosition - enemy.TargetPosition).sqrMagnitude;
-        if (sqrDistance <= slamRadius * slamRadius)
-        {
-            // TODO: damage the player with slamDamage. Needs a player health script that
-            // implements IDamageable, plus a way for enemies to reach it.
-        }
+        float reach = slamRadius + Player.Instance.HitRadius;
+        if (sqrDistance <= reach * reach) Player.Instance.Health.TakeDamage(slamDamage);
 
         // TODO: hide the landing indicator.
 

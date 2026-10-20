@@ -8,7 +8,6 @@ public class ProjectileData : ScriptableObject
     [SerializeField] private Sprite sprite;
     [SerializeField] private RuntimeAnimatorController animatorController;
     [SerializeField] private ProjectileBehavior behavior;
-    [SerializeField] private Faction faction;
 
     [Header("Stats")]
     [SerializeField] private float speed = 10f;
@@ -20,7 +19,6 @@ public class ProjectileData : ScriptableObject
     public Sprite Sprite => sprite;
     public RuntimeAnimatorController AnimatorController => animatorController;
     public ProjectileBehavior Behavior => behavior;
-    public Faction Faction => faction;
 
     public float Speed => speed;
     public float Damage => damage;

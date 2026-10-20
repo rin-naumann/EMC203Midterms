@@ -25,7 +25,6 @@ public class EBMelee : EnemyBehavior
         if (sqrDistance > contactRange || enemy.AttackTimer > 0f) return;
         enemy.AttackTimer = enemy.Data.AttackCooldown;
 
-        // TODO: damage the player with enemy.Data.Damage. Needs a player health script that
-        // implements IDamageable, plus a way for enemies to reach it.
+        Player.Instance.Health.TakeDamage(enemy.Data.Damage);
     }
 }

@@ -42,6 +42,6 @@ public class EBRanged : EnemyBehavior
 
         Vector3 direction = playerPosition - enemy.transform.position;
         Projectile shot = ObjectPooler.Instance.ProjectilePool.Get();
-        shot.Init(projectile, enemy.transform.position, direction, projectile.Damage);
+        shot.Init(projectile, enemy.transform.position, direction, enemy.Data.Damage);
     }
 }
