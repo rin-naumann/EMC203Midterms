@@ -8,6 +8,8 @@ public class ProjectileData : ScriptableObject
     [SerializeField] private Sprite sprite;
     [SerializeField] private RuntimeAnimatorController animatorController;
     [SerializeField] private ProjectileBehavior behavior;
+    [SerializeField] private float spriteFacing = 0f;
+    [SerializeField] private bool endsWithAnimation;
 
     [Header("Stats")]
     [SerializeField] private float speed = 10f;
@@ -19,6 +21,8 @@ public class ProjectileData : ScriptableObject
     public Sprite Sprite => sprite;
     public RuntimeAnimatorController AnimatorController => animatorController;
     public ProjectileBehavior Behavior => behavior;
+    public float SpriteFacing => spriteFacing;
+    public bool EndsWithAnimation => endsWithAnimation;
 
     public float Speed => speed;
     public float Damage => damage;

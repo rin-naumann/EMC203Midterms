@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dc86c04f5b398742b4e844c065d34b7, type: 3}
+  m_Name: Wave
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileData
+  displayName: Sword_Wave
+  sprite: {fileID: 818853224020358320, guid: b72e356899c7f5a48b064156e96ac03e, type: 3}
+  animatorController: {fileID: 0}
+  behavior: {fileID: 11400000, guid: 7f44261a0879d18408f2508bc7e5d3be, type: 2}
+  spriteFacing: 180
+  endsWithAnimation: 0
+  speed: 10
+  damage: 1
+  lifeTime: 5
+  hitRadius: 0.25

@@ -1,44 +1,94 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>The Staff's fireball.</summary>
 [CreateAssetMenu(fileName = "Fireball", menuName = "Projectile Behaviors/Fireball")]
 public class PBFireball : ProjectileBehavior
 {
+    [Header("Explosion")]
+    [Tooltip("A short-lived projectile that deals the area damage and plays the explosion animation. Its Hit Radius is the explosion size.")]
+    [SerializeField] private ProjectileData explosion;
+    [Tooltip("Explosion damage as a fraction of the fireball's own damage.")]
+    [SerializeField] private float explosionDamageMultiplier = 0.5f;
+
     public override bool Tick(Projectile projectile, float deltaTime, Vector3 playerPosition)
     {
         projectile.transform.position += projectile.Direction * (projectile.Data.Speed * deltaTime);
 
-        // First pass: the fireball hits one enemy and is used up. The pierce, explosion and chain
-        // rules replace this once the Staff exists (see the TODO below).
-        return HitEnemy(projectile);
+        Enemy hit = FindHit(projectile);
+        if (hit == null) return false;
 
-        // TODO (needs the Staff weapon script, which owns the level):
-        //  - pierce (levels 4 and 9): how many enemies a shot passes through.
-        //  - explode on the last enemy (level 5) and on every enemy hit (level 8).
-        //  - 25% chance to spawn another fireball on explosion (level 10). The child can chain again and
-        //    inherits the parent's REMAINING pierce.
-        // Each needs per-shot state on Projectile (pierce left, hit list) set from the weapon at Init.
+        projectile.HitEnemies.Add(hit);
+        hit.TakeDamage(projectile.Damage);
+
+        bool isLast = projectile.PierceLeft <= 0;
+        if (!isLast) projectile.PierceLeft--;
+
+        WBStaff.StaffState rules = projectile.Source?.State as WBStaff.StaffState;
+        if (rules != null && (rules.ExplodeOnHit || (isLast && rules.ExplodeOnLast)))
+            Explode(projectile, hit, rules.ChainChance);
+
+        return isLast;
     }
 
-    private bool HitEnemy(Projectile projectile)
+    private Enemy FindHit(Projectile projectile)
     {
         IReadOnlyList<Enemy> enemies = EnemyManager.Instance.Enemies;
 
         for (int i = 0; i < enemies.Count; i++)
         {
             Enemy enemy = enemies[i];
-            if (enemy.IsInvulnerable) continue;
+            if (enemy.IsInvulnerable || projectile.HitEnemies.Contains(enemy)) continue;
 
             // ContactRadius doubles as the enemy's body radius for now. EnemyData has no separate one.
             float reach = projectile.Data.HitRadius + enemy.Data.ContactRadius;
-            if ((enemy.transform.position - projectile.transform.position).sqrMagnitude > reach * reach) continue;
-
-            // Damaging can kill the enemy and remove it from the list, so stop looping right away.
-            enemy.TakeDamage(projectile.Damage);
-            return true;
+            if ((enemy.transform.position - projectile.transform.position).sqrMagnitude <= reach * reach) return enemy;
         }
 
-        return false;
+        return null;
+    }
+
+    private void Explode(Projectile projectile, Enemy directHit, float chainChance)
+    {
+        Vector3 center = projectile.transform.position;
+
+        if (explosion != null)
+        {
+            Projectile blast = ObjectPooler.Instance.ProjectilePool.Get();
+            blast.Init(explosion, center, Vector3.right, projectile.Damage * explosionDamageMultiplier);
+            blast.HitEnemies.Add(directHit);
+        }
+
+        TryChain(projectile, center, chainChance);
+    }
+
+    private void TryChain(Projectile parent, Vector3 center, float chance)
+    {
+        if (chance <= 0f || Random.value >= chance) return;
+
+        Projectile child = ObjectPooler.Instance.ProjectilePool.Get();
+        child.Init(parent.Data, center, ChainDirection(parent, center), parent.Damage);
+
+        child.Source = parent.Source;
+        child.PierceLeft = parent.PierceLeft;
+        child.HitEnemies.AddRange(parent.HitEnemies);
+    }
+
+    private Vector3 ChainDirection(Projectile parent, Vector3 center)
+    {
+        IReadOnlyList<Enemy> enemies = EnemyManager.Instance.Enemies;
+        Enemy nearest = null;
+        float nearestSqrDistance = float.MaxValue;
+
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            Enemy enemy = enemies[i];
+            if (enemy.IsInvulnerable || parent.HitEnemies.Contains(enemy)) continue;
+
+            float sqrDistance = (enemy.transform.position - center).sqrMagnitude;
+            if (sqrDistance < nearestSqrDistance) { nearest = enemy; nearestSqrDistance = sqrDistance; }
+        }
+
+        if (nearest != null) return nearest.transform.position - center;
+        return Random.insideUnitCircle.normalized;
     }
 }

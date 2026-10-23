@@ -21,4 +21,7 @@ MonoBehaviour:
   attackCooldown: 5
   contactRadius: 0.25
   moveSpeed: 1
-  xpDrop: 1000
+  hitInvulnerability: 0.2
+  deathEffect: {fileID: 11400000, guid: 3ae2e92c8b4f45d478c1f1b65241aa86, type: 2}
+  deathEffectScale: 1
+  drops: []

@@ -15,16 +15,18 @@ public class EBMelee : EnemyBehavior
         AttackPlayer(enemy, targetPosition);
     }
 
-    private void WalkToPlayer(Enemy enemy, float deltaTime, Vector3 targetPosition) => enemy.transform.position = Vector3.MoveTowards(enemy.transform.position, targetPosition, enemy.Data.MoveSpeed * deltaTime);
+    private void WalkToPlayer(Enemy enemy, float deltaTime, Vector3 targetPosition) => enemy.transform.position = Vector3.MoveTowards(enemy.transform.position, targetPosition, enemy.MoveSpeed * deltaTime);
 
     private void AttackPlayer(Enemy enemy, Vector3 targetPosition)
     {
-        float sqrDistance = (enemy.transform.position - targetPosition).sqrMagnitude;
-        float contactRange = enemy.Data.ContactRadius * enemy.Data.ContactRadius;
+        if (enemy.AttackTimer > 0f) return;
 
-        if (sqrDistance > contactRange || enemy.AttackTimer > 0f) return;
+        // Circle overlap: the enemy's radius plus the player's body radius, the same rule projectiles
+        // and the slime's slam use. Squared, so no square root.
+        float reach = enemy.Data.ContactRadius + Player.Instance.HitRadius;
+        if ((enemy.transform.position - targetPosition).sqrMagnitude > reach * reach) return;
+
         enemy.AttackTimer = enemy.Data.AttackCooldown;
-
         Player.Instance.Health.TakeDamage(enemy.Data.Damage);
     }
 }

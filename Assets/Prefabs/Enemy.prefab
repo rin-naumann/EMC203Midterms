@@ -108,7 +108,7 @@ MonoBehaviour:
   AttackTimer: 0
   State: 0
   TargetPosition: {x: 0, y: 0, z: 0}
-  IsInvulnerable: 0
+  Marker: {fileID: 0}
 --- !u!95 &1000407371293852143
 Animator:
   serializedVersion: 7

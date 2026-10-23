@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dc86c04f5b398742b4e844c065d34b7, type: 3}
+  m_Name: Death
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileData
+  displayName: Death Effect
+  sprite: {fileID: 421186259458850140, guid: d49db2812e82759409292685de90f21c, type: 3}
+  animatorController: {fileID: 9100000, guid: 5affc5c2446210341a3edeee452795ca, type: 2}
+  behavior: {fileID: 11400000, guid: 8d85da6892758bd489b6f1ba09d8d9df, type: 2}
+  spriteFacing: 0
+  endsWithAnimation: 1
+  speed: 0
+  damage: 0
+  lifeTime: 5
+  hitRadius: 0

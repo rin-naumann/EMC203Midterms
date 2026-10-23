@@ -148,89 +148,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 16x16 Walk_0
+      name: Goblin_0
       rect:
         serializedVersion: 2
-        x: 5
+        x: 0
         y: 0
-        width: 13
-        height: 17
+        width: 24
+        height: 24
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: df6be89cf6615f950800000000000000
-      internalID: 6482111908048451325
+      spriteID: 09c256923a20e104882866ea843be5c8
+      internalID: -171412197
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 16x16 Walk_1
+      name: Goblin_1
       rect:
         serializedVersion: 2
-        x: 28
+        x: 24
         y: 0
-        width: 15
-        height: 18
+        width: 24
+        height: 24
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: c127d05cd80663b80800000000000000
-      internalID: -8415432691682545124
+      spriteID: 974517750d957914db93bb8c2372a9f6
+      internalID: 1597811054
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 16x16 Walk_2
+      name: Goblin_2
       rect:
         serializedVersion: 2
-        x: 53
+        x: 48
         y: 0
-        width: 13
-        height: 17
+        width: 24
+        height: 24
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e24adae13471829d0800000000000000
-      internalID: -2798961591365819346
+      spriteID: c29310b358526d34ebc2f1e5754cb89b
+      internalID: -2135724216
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 16x16 Walk_3
+      name: Goblin_3
       rect:
         serializedVersion: 2
-        x: 77
+        x: 72
         y: 0
-        width: 13
-        height: 18
+        width: 24
+        height: 24
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 1e4cbc05a2c505ad0800000000000000
-      internalID: -2715569238490495775
+      spriteID: 4ae26b1d97c472246bd0c16816095166
+      internalID: 1513219218
       vertices: []
       indices: 
       edges: []
@@ -239,7 +239,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 7dd4efe6d18758f4fa0c553746263d19
     internalID: 0
     vertices: []
     indices: 
@@ -247,12 +247,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":24.0,"y":24.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      16x16 Walk_0: 6482111908048451325
-      16x16 Walk_1: -8415432691682545124
-      16x16 Walk_2: -2798961591365819346
-      16x16 Walk_3: -2715569238490495775
+      Goblin_0: -171412197
+      Goblin_1: 1597811054
+      Goblin_2: -2135724216
+      Goblin_3: 1513219218
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

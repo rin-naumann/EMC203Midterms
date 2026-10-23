@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a135e4921d9b7147bc13ea906f26681, type: 3}
+  m_Name: XPLow
+  m_EditorClassIdentifier: Assembly-CSharp::DropData
+  displayName: XP Low
+  sprite: {fileID: 7178314310318677672, guid: 92d29c04994bec94a816ae963cef4478, type: 3}
+  behavior: {fileID: 11400000, guid: 72f59cb5381446d4fbd3abf04f54f455, type: 2}
+  value: 2
+  attractStartSpeed: 6
+  attractAcceleration: 20

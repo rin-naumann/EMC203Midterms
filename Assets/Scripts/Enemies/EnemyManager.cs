@@ -14,6 +14,8 @@ public class EnemyManager : MonoBehaviour
         else Instance = this;
     }
 
+    private void OnEnable() => GameManager.OnRunStarted += ClearAll;
+    private void OnDisable() => GameManager.OnRunStarted -= ClearAll;
     private void OnDestroy() { if (Instance == this) Instance = null; }
 
     public void Register(Enemy enemy) => enemies.Add(enemy);
@@ -24,7 +26,7 @@ public class EnemyManager : MonoBehaviour
         Vector3 playerPosition = player.position;
         float deltaTime = Time.deltaTime;
 
-        for (int i  = enemies.Count - 1; i >= 0; i--)
+        for (int i = enemies.Count - 1; i >= 0; i--)
         {
             if (i >= enemies.Count) continue;
             enemies[i].FaceTowards(playerPosition.x);
@@ -32,7 +34,7 @@ public class EnemyManager : MonoBehaviour
         }
     }
 
-    public Enemy nearestEnemy(Vector3 searchPoint)
+    public Enemy NearestEnemy(Vector3 searchPoint)
     {
         Enemy nearest = null;
         float nearestSqrDistance = float.MaxValue;
@@ -46,5 +48,11 @@ public class EnemyManager : MonoBehaviour
         }
 
         return nearest;
+    }
+
+    private void ClearAll()
+    {
+        for (int i = enemies.Count - 1; i >= 0; i--)
+            ObjectPooler.Instance.EnemyPool.Release(enemies[i]);
     }
 }

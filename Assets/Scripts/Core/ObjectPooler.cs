@@ -14,8 +14,14 @@ public class ObjectPooler : MonoBehaviour
     [SerializeField] private int projectilePrewarmCount = 150;
     [SerializeField] private int projectilePoolMaxSize = 300;
 
+    [Header("Drops")]
+    [SerializeField] private DropPickup dropPrefab;
+    [SerializeField] private int dropPrewarmCount = 200;
+    [SerializeField] private int dropPoolMaxSize = 600;
+
     public Pool<Enemy> EnemyPool { get; private set; }
     public Pool<Projectile> ProjectilePool { get; private set; }
+    public Pool<DropPickup> DropPool { get; private set; }
 
     private void Awake()
     {
@@ -34,6 +40,13 @@ public class ObjectPooler : MonoBehaviour
             CreateParent("Projectile_Pool"),
             projectilePrewarmCount,
             projectilePoolMaxSize
+        );
+
+        DropPool = new Pool<DropPickup>(
+            dropPrefab,
+            CreateParent("Drop_Pool"),
+            dropPrewarmCount,
+            dropPoolMaxSize
         );
     }
 

@@ -3,14 +3,19 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
-    [SerializeField] private float moveSpeed = 5f;
+
+    [Tooltip("The child object with the SpriteRenderer and Animator. Only this part turns to face left or right.")]
     [SerializeField] private Transform body;
     private Animator animator;
+    private float moveSpeed;
     private bool isMoving;
 
-    void Start()
+    public Vector3 Facing => body.right;
+
+    private void Start()
     {
         animator = body.GetComponent<Animator>();
+        moveSpeed = Player.Instance.Data.MoveSpeed;
     }
 
     private void Update()

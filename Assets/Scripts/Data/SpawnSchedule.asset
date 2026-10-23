@@ -22,7 +22,7 @@ MonoBehaviour:
     interval: 3
     stepDuration: 60
     countPerStep: 050000000a0000000f00000014000000
-  - label: Group 2
+  - label: Group 3
     enemies:
     - {fileID: 11400000, guid: 71042d8e2ddac084a8dfcf8c88e33886, type: 2}
     - {fileID: 11400000, guid: 706e2d41ae169b4499165906a9037f89, type: 2}

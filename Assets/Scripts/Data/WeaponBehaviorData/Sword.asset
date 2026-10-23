@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e28d3952649ede6429fdc664edfa5f32, type: 3}
+  m_Name: Sword
+  m_EditorClassIdentifier: Assembly-CSharp::WBSword
+  arcAngle: 120
+  swingInterval: 0.15
+  slash: {fileID: 11400000, guid: 98756368cf9aa164fb4374344f150813, type: 2}
+  slashOffset: 0.5
+  wave: {fileID: 11400000, guid: 7dcdd4cdb66c29e4a89ed7a5c090cdb0, type: 2}
+  waveDamageMultiplier: 0.5
+  damageUp: 0.5
+  attackSpeedUp: 0.25
+  rangeUp: 0.25

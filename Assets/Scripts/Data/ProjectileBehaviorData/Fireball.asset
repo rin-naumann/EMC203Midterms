@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8b8744bd9e778f498c5ce92f3a010ad, type: 3}
   m_Name: Fireball
   m_EditorClassIdentifier: Assembly-CSharp::PBFireball
+  explosion: {fileID: 11400000, guid: bf697685871bc864ba92a3cdc1b3f3fe, type: 2}
+  explosionDamageMultiplier: 0.5

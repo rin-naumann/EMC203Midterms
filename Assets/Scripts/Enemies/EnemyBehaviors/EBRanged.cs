@@ -33,7 +33,7 @@ public class EBRanged : EnemyBehavior
         if (sqrDistance <= attackRange * attackRange) AttackPlayer(enemy, playerPosition);
     }
 
-    private void WalkToPlayer(Enemy enemy, float deltaTime, Vector3 playerPosition) => enemy.transform.position = Vector3.MoveTowards(enemy.transform.position, playerPosition, enemy.Data.MoveSpeed * deltaTime);
+    private void WalkToPlayer(Enemy enemy, float deltaTime, Vector3 playerPosition) => enemy.transform.position = Vector3.MoveTowards(enemy.transform.position, playerPosition, enemy.MoveSpeed * deltaTime);
 
     private void AttackPlayer(Enemy enemy, Vector3 playerPosition)
     {

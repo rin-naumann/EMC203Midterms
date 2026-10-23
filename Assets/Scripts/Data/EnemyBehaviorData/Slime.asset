@@ -15,6 +15,11 @@ MonoBehaviour:
   jumpHeight: 12
   riseTime: 0.6
   fallSpeed: 30
+  animationFps: 12
+  launchFramesBeforeLeaving: 4
+  landImpactFrame: 4
   indicatorTime: 1.5
   slamRadius: 3
-  slamDamage: 30
+  landEffect: {fileID: 11400000, guid: a4799e59fde74ce4ea2880c608a2ae2d, type: 2}
+  landEffectScale: 1
+  indicatorPrefab: {fileID: 2175163055480950905, guid: efa91b6a517813e468a4679872b80b41, type: 3}
