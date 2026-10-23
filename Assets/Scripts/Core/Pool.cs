@@ -2,7 +2,10 @@ using UnityEngine;
 using UnityEngine.Pool;
 using System.Collections.Generic;
 
-// All pooled objects must implement this
+/// <summary>
+/// A pool that reuses objects instead of destroying them.
+/// Pooled objects must implement IPoolable.
+/// </summary>
 public class Pool<T> where T : Component, IPoolable
 {
     private readonly T prefab;
@@ -45,5 +48,5 @@ public class Pool<T> where T : Component, IPoolable
     private T Create() => Object.Instantiate(prefab, parent);
     private void OnGet(T item) { item.gameObject.SetActive(true); item.OnSpawn(); }
     private void OnRelease(T item) { item.OnDespawn(); item.gameObject.SetActive(false); }
-    private void OnDestroy(T item) => Object.Destroy(item.gameObject);
+    private void OnDestroy(T item) { if(item != null) Object.Destroy(item.gameObject); }
 }

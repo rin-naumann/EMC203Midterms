@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// One kind of drop (an EXP gem, a heart): how it looks, what it does when collected, and how it
-/// flies to the player. Read-only at runtime. The per-drop state lives on DropPickup.
+/// Data for one kind of drop, such as an EXP gem or a heart.
+/// Holds its look, its behavior and how it flies to the player.
 /// </summary>
 [CreateAssetMenu(fileName = "New Drop", menuName = "Drop")]
 public class DropData : ScriptableObject

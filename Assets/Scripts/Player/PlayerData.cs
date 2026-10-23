@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Data for the player: speed, health, regeneration, EXP and pickup range.
+/// </summary>
 [CreateAssetMenu(fileName = "PlayerData", menuName = "Player")]
 public class PlayerData : ScriptableObject
 {

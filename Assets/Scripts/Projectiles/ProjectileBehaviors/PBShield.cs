@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// The shield's orbiting projectile. Damages enemies it touches and slows them at higher levels.
+/// </summary>
 [CreateAssetMenu(fileName = "Shield", menuName = "Projectile Behaviors/Shield")]
 public class PBShield : ProjectileBehavior
 {

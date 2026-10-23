@@ -2,14 +2,13 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Owns every drop: creates them where an enemy dies (from that enemy's drop table), updates all of
-/// them in one loop (the same pattern as ProjectileManager), and clears them when a new run starts.
+/// Creates drops where enemies die and updates them all in one loop.
+/// Clears them when a new run starts.
 /// </summary>
 public class DropManager : MonoBehaviour
 {
     public static DropManager Instance { get; private set; }
 
-    [Tooltip("Drops from one enemy are scattered up to this far from where it died, so they don't sit on top of each other.")]
     [SerializeField] private float scatter = 0.3f;
 
     private readonly List<DropPickup> drops = new List<DropPickup>();
@@ -21,7 +20,7 @@ public class DropManager : MonoBehaviour
         else Instance = this;
     }
 
-    // Static events outlive this object, so always unsubscribe in OnDisable.
+    // Unsubscribe so the static events do not keep this object alive
     private void OnEnable()
     {
         GameManager.OnRunStarted += ClearAll;
@@ -47,8 +46,7 @@ public class DropManager : MonoBehaviour
         Vector3 playerPosition = player.Position;
         float deltaTime = Time.deltaTime;
 
-        // The collect radius is the player's body radius. The magnet radius can never be smaller than it,
-        // or a drop inside the body would never start flying.
+        // The magnet radius is never smaller than the collect radius
         float collectRadius = player.HitRadius;
         float magnetRadius = Mathf.Max(player.PickupRadius, collectRadius);
 
@@ -59,8 +57,7 @@ public class DropManager : MonoBehaviour
         }
     }
 
-    // Enemy only announces its death and knows nothing about drops; this is the one place that connects the two.
-    // Each entry in the enemy's drop table rolls its own chance. An empty table (the slime) drops nothing.
+    // Rolls each entry in the enemy's drop table when it dies
     private void DropLoot(Enemy enemy)
     {
         DropEntry[] table = enemy.Data.Drops;
@@ -78,7 +75,7 @@ public class DropManager : MonoBehaviour
         }
     }
 
-    // New run: clear the old run's drops. Releasing unregisters each one, so go backwards.
+    // New run: clear old drops, going backwards because releasing removes them
     private void ClearAll()
     {
         for (int i = drops.Count - 1; i >= 0; i--)

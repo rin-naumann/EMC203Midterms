@@ -1,14 +1,14 @@
 using UnityEngine;
 
 /// <summary>
-/// Melee attacks the player when close enough.
+/// Walks toward the player and attacks when close enough.
 /// </summary>
 [CreateAssetMenu(fileName = "Melee", menuName = "Enemy Behaviors/Melee")]
 public class EBMelee : EnemyBehavior
 {
     public override void Tick(Enemy enemy, float deltaTime, Vector3 targetPosition)
     {
-        // The cooldown keeps counting while the enemy walks, so a hit is ready on arrival.
+        // The cooldown counts down while walking, so a hit is ready on arrival
         enemy.AttackTimer -= deltaTime;
 
         WalkToPlayer(enemy, deltaTime, targetPosition);
@@ -21,8 +21,7 @@ public class EBMelee : EnemyBehavior
     {
         if (enemy.AttackTimer > 0f) return;
 
-        // Circle overlap: the enemy's radius plus the player's body radius, the same rule projectiles
-        // and the slime's slam use. Squared, so no square root.
+        // Circle overlap: enemy radius plus the player's body radius
         float reach = enemy.Data.ContactRadius + Player.Instance.HitRadius;
         if ((enemy.transform.position - targetPosition).sqrMagnitude > reach * reach) return;
 

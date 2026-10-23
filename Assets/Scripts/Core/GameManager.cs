@@ -1,6 +1,9 @@
 using UnityEngine;
 using System;
 
+/// <summary>
+/// The states the game can be in.
+/// </summary>
 public enum GameState
 {
     Title,
@@ -11,13 +14,16 @@ public enum GameState
     Lose
 }
 
+/// <summary>
+/// Controls the game state and the run timer.
+/// Tells other scripts when the state changes or a new run starts.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
     public static event Action<GameState> OnStateChanged;
     public static event Action OnRunStarted;
-
 
     [SerializeField] private GameState startState = GameState.Title;
     private bool hasState;
@@ -42,7 +48,7 @@ public class GameManager : MonoBehaviour
     {
         if (hasState && newState == CurrentState) return;
 
-        // Pause and level-up also return to Playing, but those continue the same run.
+        // A new run only starts from Title, Win or Lose
         bool startsRun = newState == GameState.Playing &&
             (!hasState || CurrentState == GameState.Title || CurrentState == GameState.Win || CurrentState == GameState.Lose);
 

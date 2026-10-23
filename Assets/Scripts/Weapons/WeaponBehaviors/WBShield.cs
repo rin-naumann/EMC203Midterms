@@ -3,25 +3,18 @@ using System.Text;
 using System.Collections.Generic;
 
 /// <summary>
-/// The Shield: shields orbit the player and damage enemies they touch. A new one appears every
-/// Cooldown seconds until the player has Count of them.
-///   Level 2, 6   damage up                Level 7   four shields
-///   Level 3      two shields              Level 8   enemies hit are slowed
-///   Level 4, 9   rotation speed up        Level 10  eight shields, and immunity to one hit every 30 seconds
-///   Level 5      when the player is hit, the damage is reduced and one shield is lost
-/// The shields are pooled projectiles that use the PBShield behavior, and they do all the hitting.
-/// This weapon only spawns them, keeps them evenly spaced around the player, and protects the player
-/// (damage reduction and immunity).
+/// The Shield weapon. Shields orbit the player and damage enemies they touch.
+/// A new shield appears each cooldown until the limit is reached.
+/// Higher levels add more shields, slow enemies, reduce damage taken and block a hit.
 /// </summary>
 [CreateAssetMenu(fileName = "Shield", menuName = "Weapon Behaviors/Shield")]
 public class WBShield : WeaponBehavior
 {
-    // Weapon-specific state. It lives on the Weapon, never on this asset, which every Shield shares.
-    // Public because PBShield reads Slows from it.
+    // Weapon-specific state, kept on the Weapon (public because PBShield reads it)
     public class ShieldState : WeaponState
     {
         public readonly List<Projectile> Shields = new List<Projectile>();
-        public float Angle;              // how far the whole ring has turned, in degrees
+        public float Angle;  // degrees the ring has turned
         public float RotationSpeed;      // degrees per second
 
         public bool BlocksDamage;        // level 5
@@ -31,19 +24,16 @@ public class WBShield : WeaponBehavior
     }
 
     [Header("Shield")]
-    [Tooltip("A projectile using the Shield behavior (PBShield). Its Hit Radius is how big each shield is.")]
     [SerializeField] private ProjectileData shield;
-    [Tooltip("Degrees per second at level 1.")]
     [SerializeField] private float baseRotationSpeed = 120f;
 
     [Header("Upgrades")]
-    [Tooltip("Damage up levels multiply damage by 1 plus this. 0.5 is +50%.")]
+    [Tooltip("Damage multiplier per damage up level is 1 plus this (0.5 = +50%)")]
     [SerializeField] private float damageUp = 0.5f;
-    [Tooltip("Rotation speed up levels multiply the speed by 1 plus this.")]
     [SerializeField] private float rotationUp = 0.5f;
-    [Tooltip("Level 5: how much of the damage is removed when a hit costs the player a shield. 0.3 is 30%.")]
+    [Tooltip("Level 5: fraction of damage removed when a shield is lost (0.3 = 30%)")]
     [SerializeField, Range(0f, 1f)] private float damageReduction = 0.3f;
-    [Tooltip("Level 10: seconds until the immunity is ready again after it blocks a hit.")]
+    [Tooltip("Level 10: seconds until the immunity is ready again")]
     [SerializeField] private float immunityInterval = 10f;
 
     public override WeaponState CreateState() => new ShieldState { RotationSpeed = baseRotationSpeed };
@@ -58,7 +48,7 @@ public class WBShield : WeaponBehavior
         weapon.TickCooldown(deltaTime);
         if (state.ImmunityTimer > 0f) state.ImmunityTimer -= deltaTime;
 
-        // Below the shield count and the timer is up: make one more. The cooldown is what makes it one every few seconds.
+        // Make a new shield when below the count and ready
         if (state.Shields.Count < weapon.Count && weapon.IsReady)
         {
             SpawnShield(weapon, player.Position, state);
@@ -75,16 +65,15 @@ public class WBShield : WeaponBehavior
         Projectile piece = ObjectPooler.Instance.ProjectilePool.Get();
         piece.Init(shield, origin, Vector3.right, 0f);
 
-        // PBShield reads the damage and the Slows rule from the Source, so upgrades reach shields that already exist.
+        // PBShield reads damage and Slows from the Source, so upgrades reach existing shields
         piece.Source = weapon;
 
-        // A shield never expires on its own: it is only removed when the player loses it.
+        // Shields never expire, they are only removed when lost
         piece.LifeTimer = float.MaxValue;
         state.Shields.Add(piece);
     }
 
-    // Spreads the shields evenly around a circle. Using the number of shields that exist right now means
-    // the rest re-space themselves when one is lost.
+    // Spreads the shields evenly around a circle
     private void PlaceShields(Weapon weapon, ShieldState state, Vector3 origin)
     {
         int count = state.Shields.Count;
@@ -97,8 +86,7 @@ public class WBShield : WeaponBehavior
         }
     }
 
-    // The player is about to be hurt. Immunity is checked first and blocks the hit completely,
-    // without costing a shield. Otherwise a shield takes part of the hit and is lost.
+    // Immunity blocks a hit completely. Otherwise a shield is lost and damage is reduced
     public override float FilterPlayerDamage(Weapon weapon, float damage)
     {
         ShieldState state = weapon.GetState<ShieldState>();
@@ -115,7 +103,7 @@ public class WBShield : WeaponBehavior
             ObjectPooler.Instance.ProjectilePool.Release(state.Shields[last]);
             state.Shields.RemoveAt(last);
 
-            // The replacement takes a full cooldown to appear.
+            // The replacement takes a full cooldown
             weapon.StartCooldown();
             return damage * (1f - damageReduction);
         }
@@ -146,14 +134,14 @@ public class WBShield : WeaponBehavior
                 weapon.Damage *= 1f + damageUp;
                 break;
             case 3:
-                weapon.Count = 2;
+                weapon.Count = 4;
                 break;
             case 4:
             case 9:
                 state.RotationSpeed *= 1f + rotationUp;
                 break;
             case 7:
-                weapon.Count = 4;
+                weapon.Count = 6;
                 break;
             case 10:
                 weapon.Count = 8;
@@ -175,7 +163,7 @@ public class WBShield : WeaponBehavior
                 break;
             case 10:
                 state.HasImmunity = true;
-                state.ImmunityTimer = 0f;   // ready right away
+                state.ImmunityTimer = 0f;  // ready right away
                 break;
         }
     }

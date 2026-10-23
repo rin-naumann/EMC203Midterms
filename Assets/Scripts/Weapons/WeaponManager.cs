@@ -3,8 +3,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Lives on the player. Owns every weapon, ticks them, and is the one place that adds or levels a
-/// weapon. The level-up screen will call AddOrLevelUp; the UI listens to the events.
+/// Lives on the player. Owns all weapons, updates them, and adds or levels them up.
 /// </summary>
 public class WeaponManager : MonoBehaviour
 {
@@ -13,7 +12,6 @@ public class WeaponManager : MonoBehaviour
     public event Action<Weapon> OnWeaponAdded;
     public event Action<Weapon> OnWeaponLevelChanged;
 
-    [Tooltip("Weapons the player owns at the start of every run.")]
     [SerializeField] private List<WeaponData> startingWeapons = new List<WeaponData>();
 
     private readonly List<Weapon> weapons = new List<Weapon>();
@@ -26,13 +24,12 @@ public class WeaponManager : MonoBehaviour
         if (Instance != null && Instance != this) { Destroy(this); return; }
         else Instance = this;
 
-        // PlayerHealth knows nothing about weapons. It only offers a hook for anything that wants to
-        // change incoming damage, and this is the one place that plugs the weapons into it.
+        // Plugs the weapons into the player's damage filter
         health = GetComponent<PlayerHealth>();
         if (health != null) health.DamageFilter = FilterPlayerDamage;
     }
 
-    // Static events outlive this object, so always unsubscribe in OnDisable.
+    // Unsubscribe so the static event does not keep this object alive
     private void OnEnable() => GameManager.OnRunStarted += ResetRun;
     private void OnDisable() => GameManager.OnRunStarted -= ResetRun;
     private void OnDestroy()
@@ -45,15 +42,14 @@ public class WeaponManager : MonoBehaviour
 
     private void Update()
     {
-        // Time.timeScale is 0 when paused, but a weapon that is ready would still fire once per
-        // frame with a delta time of 0, so weapons are only ticked while playing.
+        // Weapons only update while playing
         if (!GameManager.Instance.IsPlaying) return;
 
         float deltaTime = Time.deltaTime;
         for (int i = 0; i < weapons.Count; i++) weapons[i].Tick(deltaTime);
     }
 
-    // Passes the damage through every weapon in turn. Most weapons leave it unchanged.
+    // Passes the damage through every weapon
     private float FilterPlayerDamage(float damage)
     {
         for (int i = 0; i < weapons.Count; i++)
@@ -92,7 +88,7 @@ public class WeaponManager : MonoBehaviour
         return weapon;
     }
 
-    // New run: forget the old weapons and hand out the starting ones again.
+    // New run: reset weapons and give the starting ones
     private void ResetRun()
     {
         weapons.Clear();

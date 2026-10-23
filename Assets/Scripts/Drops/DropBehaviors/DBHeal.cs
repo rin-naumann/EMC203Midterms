@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>Collecting it heals the player.</summary>
+/// <summary>Heals the player when collected.</summary>
 [CreateAssetMenu(fileName = "Heal", menuName = "Drop Behaviors/Heal")]
 public class DBHeal : DropBehavior
 {

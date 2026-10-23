@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>Collecting it gives the player EXP.</summary>
+/// <summary>Gives the player EXP when collected.</summary>
 [CreateAssetMenu(fileName = "Exp", menuName = "Drop Behaviors/Exp")]
 public class DBExp : DropBehavior
 {

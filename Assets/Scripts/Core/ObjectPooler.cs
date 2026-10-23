@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Creates and holds the pools for enemies, projectiles and drops.
+/// </summary>
 public class ObjectPooler : MonoBehaviour
 {
     public static ObjectPooler Instance { get; private set; }
@@ -50,7 +53,7 @@ public class ObjectPooler : MonoBehaviour
         );
     }
 
-    // UTIL: Creates a child of the ObjectPooler and returns it as the pool's parent. For scene hierarchy organization.
+    // Makes a parent object to keep the hierarchy tidy
     private Transform CreateParent(string name) {
         Transform parent = new GameObject(name).transform;
         parent.SetParent(transform);

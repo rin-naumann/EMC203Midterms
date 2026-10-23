@@ -1,8 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// What a weapon IS: its name, look and starting stats. Read-only at runtime. How it works lives in
-/// its WeaponBehavior, and the live numbers (which change as it levels up) live on the Weapon instance.
+/// Data for one weapon: its name, look and starting stats.
 /// </summary>
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Weapon")]
 public class WeaponData : ScriptableObject
@@ -16,15 +15,13 @@ public class WeaponData : ScriptableObject
     [Header("Stats")]
     [SerializeField] private int maxLevel = 10;
     [SerializeField] private float damage = 10f;
-    [Tooltip("Seconds between attacks.")]
     [SerializeField] private float cooldown = 1f;
-    [Tooltip("Staff: fireballs per attack. Sword: swings per attack. Shield: shields at once.")]
+    [Tooltip("Staff: fireballs per attack. Sword: swings per attack. Shield: shields at once")]
     [SerializeField] private int count = 1;
-    [Tooltip("Staff: how far it can target. Sword: how far the swing reaches. Shield: orbit distance from the player.")]
+    [Tooltip("Staff: targeting range. Sword: swing reach. Shield: orbit distance")]
     [SerializeField] private float range = 5f;
 
     [Header("Audio")]
-    [Tooltip("Played each time the weapon attacks: a shot for the Staff, a swing for the Sword, a new shield for the Shield.")]
     [SerializeField] private SoundEffect attackSound;
 
     public string DisplayName => displayName;

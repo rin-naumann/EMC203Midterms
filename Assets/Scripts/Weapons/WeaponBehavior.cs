@@ -2,33 +2,28 @@ using UnityEngine;
 using System.Text;
 
 /// <summary>
-/// HOW a weapon works. Like EnemyBehavior and ProjectileBehavior, it is a ScriptableObject that is
-/// shared by everything using it, so it must stay stateless. Anything that changes per weapon lives on
-/// the Weapon: the shared stats directly, and weapon-specific ones in the WeaponState it creates.
+/// Base class for how a weapon works. It is shared by all weapons using it, so it keeps no per-weapon data.
 /// </summary>
 public abstract class WeaponBehavior : ScriptableObject
 {
-    /// <summary>Creates the weapon-specific state (pierce, explode flags...). Null if it needs none.</summary>
+    /// <summary>Creates the weapon-specific state, or null if none is needed.</summary>
     public virtual WeaponState CreateState() => null;
 
-    /// <summary>Called every frame. This is where the weapon decides whether and how to attack.</summary>
+    /// <summary>Called every frame. Decides whether and how to attack.</summary>
     public abstract void Tick(Weapon weapon, float deltaTime);
 
-    /// <summary>Called when the weapon reaches a level. For the plain "UP" levels (damage, speed, count, range).</summary>
+    /// <summary>Called when the weapon reaches a level, for plain stat upgrades.</summary>
     public virtual void StatUpgrade(Weapon weapon, int level) { }
 
-    /// <summary>Called when the weapon reaches a level. For the special levels (pierce, explosion, new swings...).</summary>
+    /// <summary>Called when the weapon reaches a level, for special upgrades.</summary>
     public virtual void UniqueUpgrade(Weapon weapon, int level) { }
 
-    /// <summary>
-    /// Called when the player is about to take damage. Return the damage that should actually go through,
-    /// 0 to block it completely. Only weapons that protect the player (the Shield) override this.
-    /// </summary>
+    /// <summary>Called when the player takes damage. Returns the damage to take (0 blocks it).</summary>
     public virtual float FilterPlayerDamage(Weapon weapon, float damage) => damage;
 
-    /// <summary>Debug only: adds the weapon-specific numbers (unlocked upgrades, state) to the RunDebugger's readout.</summary>
+    /// <summary>Debug only: adds weapon details to the RunDebugger readout.</summary>
     public virtual void DescribeState(Weapon weapon, StringBuilder builder) { }
 }
 
-/// <summary>Base class for the per-weapon state a behavior keeps on a Weapon. Each behavior defines its own.</summary>
+/// <summary>Base class for the state a behavior keeps on a Weapon.</summary>
 public abstract class WeaponState { }

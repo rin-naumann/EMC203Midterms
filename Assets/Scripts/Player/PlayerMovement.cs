@@ -1,10 +1,12 @@
 using UnityEngine;
 
+/// <summary>
+/// Moves the player with the keyboard, turns the sprite left or right and sets the walk animation.
+/// </summary>
 public class PlayerMovement : MonoBehaviour
 {
     private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
 
-    [Tooltip("The child object with the SpriteRenderer and Animator. Only this part turns to face left or right.")]
     [SerializeField] private Transform body;
     private Animator animator;
     private float moveSpeed;

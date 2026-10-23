@@ -2,16 +2,13 @@ using UnityEngine;
 using System.Text;
 
 /// <summary>
-/// The Staff: aims at the closest enemy in range and shoots fireballs.
-///   Level 2, 6   damage up          Level 5   fireball explodes on the last enemy
-///   Level 3, 7   one more fireball  Level 8   fireball explodes on every enemy it hits
-///   Level 4, 9   pierce up          Level 10  chance to spawn another fireball on explosion
+/// The Staff weapon. Aims at the closest enemy in range and shoots fireballs.
+/// Higher levels add damage, more fireballs, pierce, explosions and chaining.
 /// </summary>
 [CreateAssetMenu(fileName = "Staff", menuName = "Weapon Behaviors/Staff")]
 public class WBStaff : WeaponBehavior
 {
-    // Weapon-specific state. It lives on the Weapon, never on this asset, which every Staff shares.
-    // Public because PBFireball reads the Staff's unlocked rules from it.
+    // Weapon-specific state, kept on the Weapon (public because PBFireball reads it)
     public class StaffState : WeaponState
     {
         public int Pierce;
@@ -22,13 +19,11 @@ public class WBStaff : WeaponBehavior
 
     [Header("Fireball")]
     [SerializeField] private ProjectileData projectile;
-    [Tooltip("Angle in degrees between neighbouring fireballs when firing more than one.")]
     [SerializeField] private float spreadAngle = 12f;
 
     [Header("Upgrades")]
-    [Tooltip("Damage up levels multiply damage by 1 plus this. 0.5 is +50%.")]
+    [Tooltip("Damage multiplier per damage up level is 1 plus this (0.5 = +50%)")]
     [SerializeField] private float damageUp = 0.5f;
-    [Tooltip("Extra enemies a fireball passes through, added at each pierce level.")]
     [SerializeField] private int pierceIncrease = 2;
     [SerializeField, Range(0f, 1f)] private float chainChance = 0.2f;
 
@@ -42,7 +37,7 @@ public class WBStaff : WeaponBehavior
         Player player = Player.Instance;
         if (player == null) return;
 
-        // Closest enemy that can be hurt. No enemy in range: do nothing, so the Staff stays ready.
+        // Closest enemy that can be hurt. Stay ready if none is in range
         Enemy target = EnemyManager.Instance.NearestEnemy(player.Position);
         if (target == null) return;
 
@@ -58,7 +53,7 @@ public class WBStaff : WeaponBehavior
     {
         StaffState state = weapon.GetState<StaffState>();
 
-        // Several fireballs fan out evenly around the aim direction.
+        // Several fireballs fan out around the aim
         float firstAngle = -spreadAngle * (weapon.Count - 1) * 0.5f;
 
         for (int i = 0; i < weapon.Count; i++)
@@ -68,8 +63,7 @@ public class WBStaff : WeaponBehavior
             Projectile shot = ObjectPooler.Instance.ProjectilePool.Get();
             shot.Init(projectile, origin, direction, weapon.Damage);
 
-            // Pierce is copied because each shot uses it up as it flies. The explosion and chain rules
-            // never change per shot, so PBFireball reads them from the Staff through Source.
+        // Pierce is copied because each shot uses it up
             shot.Source = weapon;
             shot.PierceLeft = state.Pierce;
         }

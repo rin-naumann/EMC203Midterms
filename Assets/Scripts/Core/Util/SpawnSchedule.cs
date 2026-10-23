@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Holds the enemy spawn plan: repeating groups and one-time events.
+/// </summary>
 [CreateAssetMenu(fileName = "SpawnSchedule", menuName = "Spawn Schedule")]
 public class SpawnSchedule : ScriptableObject
 {
@@ -10,7 +13,7 @@ public class SpawnSchedule : ScriptableObject
     public SpawnEvent[] Events => events;
 }
 
-// A recurring spawn group
+/// <summary>A group of enemies that spawns again and again.</summary>
 [System.Serializable]
 public class SpawnGroup
 {
@@ -37,7 +40,7 @@ public class SpawnGroup
     }
 }
 
-// A one-off spawn at a set time (the slime miniboss)
+/// <summary>A one-time spawn at a set time, like the slime.</summary>
 [System.Serializable]
 public class SpawnEvent
 {
@@ -45,7 +48,6 @@ public class SpawnEvent
     [SerializeField] private EnemyData enemyData;
     [SerializeField] private float time;
     [SerializeField] private int count = 1;
-    [Tooltip("Killing this enemy ends the run with a win.")]
     [SerializeField] private bool winOnDeath;
 
     public string Label => label;

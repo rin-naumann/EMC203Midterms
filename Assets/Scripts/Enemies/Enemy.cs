@@ -1,11 +1,15 @@
 using UnityEngine;
 using System;
 
+/// <summary>
+/// A pooled enemy. Handles health, taking damage, slow and invulnerability.
+/// Its movement and attacks come from its EnemyBehavior.
+/// </summary>
 [RequireComponent(typeof(SpriteRenderer), typeof(Animator))]
 public class Enemy : MonoBehaviour, IPoolable, IDamageable
 {
     public static event Action<Enemy> OnEnemyDeath;
-    /// <summary>An enemy took damage and survived. Used for the hit sound.</summary>
+    /// <summary>Raised when an enemy takes damage and survives.</summary>
     public static event Action<Enemy> OnEnemyHit;
 
     private SpriteRenderer spriteRenderer;
@@ -21,12 +25,10 @@ public class Enemy : MonoBehaviour, IPoolable, IDamageable
     public int State;
     public Vector3 TargetPosition;
 
-    /// <summary>An object a behavior put in the world for this enemy (the slime's landing indicator). Removed when the enemy leaves.</summary>
+    /// <summary>An object a behavior created for this enemy, like the slime's landing indicator.</summary>
     public GameObject Marker;
 
-    // Two kinds of "can't be hurt", combined into IsInvulnerable so every weapon only has to check one thing:
-    //  - set by a behavior, for as long as it likes (the slime while it is in the air);
-    //  - the short window after taking a hit, which also stops one enemy being hit many times at once.
+    // Invulnerable if a behavior says so, or briefly after a hit
     private bool behaviorInvulnerable;
     private float hitTimer;
     public bool IsInvulnerable
@@ -40,7 +42,7 @@ public class Enemy : MonoBehaviour, IPoolable, IDamageable
     private float slowMultiplier = 1f;
     private float slowTimer;
 
-    /// <summary>Walking speed right now: the data's speed, reduced while slowed. Behaviors use this and not Data.MoveSpeed.</summary>
+    /// <summary>Current speed, lower while slowed.</summary>
     public float MoveSpeed => data.MoveSpeed * (slowTimer > 0f ? slowMultiplier : 1f);
 
     private void Awake()
@@ -64,14 +66,14 @@ public class Enemy : MonoBehaviour, IPoolable, IDamageable
         slowMultiplier = 1f;
         slowTimer = 0f;
 
-        spriteRenderer.color = Color.white;   // a pooled enemy may have been red when it was released
+        spriteRenderer.color = Color.white;  // a pooled enemy may still be red
         spriteRenderer.enabled = true;
 
-        // Always assign the controller, so a pooled enemy never keeps the previous type's animation.
+        // Always set the controller so a pooled enemy keeps no old animation
         if (animator.runtimeAnimatorController != data.AnimatorController)
             animator.runtimeAnimatorController = data.AnimatorController;
 
-        // The sprite comes AFTER the controller change, so nothing from the old controller can overwrite it.
+        // Set the sprite after the controller change
         spriteRenderer.sprite = data.Sprite;
 
         data.Behavior.OnInit(this);
@@ -90,7 +92,7 @@ public class Enemy : MonoBehaviour, IPoolable, IDamageable
         data.Behavior.Tick(this, deltaTime, playerPosition);
     }
 
-    /// <summary>Slows the enemy to this fraction of its speed (0.8 is 20% slower) for a while. The strongest slow wins; the time is refreshed.</summary>
+    /// <summary>Slows the enemy for a while. The strongest slow wins.</summary>
     public void ApplySlow(float multiplier, float duration)
     {
         if (slowTimer <= 0f || multiplier < slowMultiplier) slowMultiplier = multiplier;
@@ -124,7 +126,7 @@ public class Enemy : MonoBehaviour, IPoolable, IDamageable
             return;
         }
 
-        // Survived the hit: red, and untouchable, for exactly the same amount of time.
+        // Survived: turn red and become invulnerable briefly
         hitTimer = data.HitInvulnerability;
         if (hitTimer > 0f) spriteRenderer.color = HitColor;
         OnEnemyHit?.Invoke(this);
@@ -132,7 +134,7 @@ public class Enemy : MonoBehaviour, IPoolable, IDamageable
 
     public void Die()
     {
-        // Already back in the pool: don't announce a second death for the same enemy.
+        // Do not announce a second death
         if (!gameObject.activeSelf) return;
 
         OnEnemyDeath?.Invoke(this);
@@ -142,7 +144,7 @@ public class Enemy : MonoBehaviour, IPoolable, IDamageable
     void IPoolable.OnSpawn() => EnemyManager.Instance?.Register(this);
     void IPoolable.OnDespawn()
     {
-        RemoveMarker();   // however the enemy left (killed, run restarted), its marker goes with it
+        RemoveMarker();  // the marker goes with the enemy
         EnemyManager.Instance?.Unregister(this);
     }
 }

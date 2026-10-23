@@ -1,9 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// One weapon the player owns. It is a plain C# class, not a MonoBehaviour: it needs no scene object
-/// because the WeaponManager creates and ticks it. It holds the level and the live stats, and hands
-/// every decision about HOW to attack to its behavior.
+/// One weapon the player owns. Holds its level and live stats.
+/// How it attacks is decided by its WeaponBehavior.
 /// </summary>
 public class Weapon
 {
@@ -11,13 +10,13 @@ public class Weapon
     public int Level { get; private set; }
     public bool IsMaxLevel => Level >= Data.MaxLevel;
 
-    // Live stats. Copied from the data, then changed by the behavior's upgrade methods.
+    // Live stats, copied from the data and changed by upgrades
     public float Damage;
     public float Cooldown;
     public int Count;
     public float Range;
 
-    // Per-weapon running state, the same idea as Enemy.AttackTimer and Enemy.State.
+    // Running state for this weapon
     public float AttackTimer;
     public WeaponState State { get; private set; }
 
@@ -55,16 +54,12 @@ public class Weapon
     /// <summary>The weapon-specific state, as the type its behavior created.</summary>
     public T GetState<T>() where T : WeaponState => (T)State;
 
-    // Cooldown helpers for weapons that attack on a timer (Staff, Sword).
-    // The timer stops at 0, so a weapon with no target stays ready and fires the moment one appears.
+    // Cooldown helpers for weapons that attack on a timer
     public bool IsReady => AttackTimer <= 0f;
     public void TickCooldown(float deltaTime) { if (AttackTimer > 0f) AttackTimer -= deltaTime; }
     public void StartCooldown() => AttackTimer = Cooldown;
 
-    /// <summary>
-    /// Behaviors call this when the weapon actually attacks (a shot, a swing, a new shield), so anything that
-    /// reacts to attacks, like sound, doesn't need to know how each weapon works.
-    /// </summary>
+    /// <summary>Behaviors call this when the weapon attacks, so things like sound can react.</summary>
     public static event System.Action<Weapon> OnAttack;
     public void NotifyAttack() => OnAttack?.Invoke(this);
 }

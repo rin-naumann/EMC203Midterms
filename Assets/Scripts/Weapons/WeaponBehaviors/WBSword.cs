@@ -3,51 +3,43 @@ using System.Text;
 using System.Collections.Generic;
 
 /// <summary>
-/// The Sword: swings in front of the player, hitting every enemy inside a cone.
-///   Level 2, 6   damage up              Level 5   also swings behind the player
-///   Level 3, 7   attack speed up        Level 8   swings twice (Count 2)
-///   Level 4, 9   attack range up        Level 10  swings three times (Count 3), and every swing shoots a piercing wave
-/// A swing is an instant hit (a distance and angle check, no colliders). The slash you see is a separate
-/// pooled projectile that only plays an animation.
+/// The Sword weapon. Swings in front of the player and hits every enemy inside a cone.
+/// The hit is a distance and angle check. The visible slash is a separate animation.
 /// </summary>
 [CreateAssetMenu(fileName = "Sword", menuName = "Weapon Behaviors/Sword")]
 public class WBSword : WeaponBehavior
 {
-    // Weapon-specific state. It lives on the Weapon, never on this asset, which every Sword shares.
+    // Weapon-specific state, stored on the Weapon and not on this shared asset
     private class SwordState : WeaponState
     {
         public bool SwingBehind;
         public bool FiresWave;
 
-        // Progress of the attack that is happening right now.
+        // Progress of the current attack
         public int SwingsLeft;
         public float SwingTimer;
     }
 
     [Header("Swing")]
-    [Tooltip("Width of the swing in degrees. 120 means 60 to each side of the facing direction.")]
+    [Tooltip("Width of the swing in degrees")]
     [SerializeField] private float arcAngle = 120f;
-    [Tooltip("Seconds between the swings of one attack. How many swings there are is the weapon's Count.")]
+    [Tooltip("Seconds between the swings of one attack")]
     [SerializeField] private float swingInterval = 0.15f;
 
     [Header("Visuals")]
-    [Tooltip("The slash animation: a projectile using the Effect behavior. Its lifetime should match the animation.")]
     [SerializeField] private ProjectileData slash;
-    [Tooltip("How far in front of the player the slash appears.")]
     [SerializeField] private float slashOffset = 0.5f;
 
     [Header("Wave (level 10)")]
-    [Tooltip("A projectile using the Wave behavior.")]
     [SerializeField] private ProjectileData wave;
-    [Tooltip("Wave damage as a fraction of the swing's damage.")]
+    [Tooltip("Wave damage as a fraction of the swing's damage")]
     [SerializeField] private float waveDamageMultiplier = 0.5f;
 
     [Header("Upgrades")]
-    [Tooltip("Damage up levels multiply damage by 1 plus this. 0.5 is +50%.")]
+    [Tooltip("Damage multiplier per damage up level is 1 plus this (0.5 = +50%)")]
     [SerializeField] private float damageUp = 0.5f;
-    [Tooltip("Attack speed up levels divide the cooldown by 1 plus this. 0.25 is 25% faster.")]
+    [Tooltip("Cooldown is divided by 1 plus this per attack speed up (0.25 = 25% faster)")]
     [SerializeField] private float attackSpeedUp = 0.25f;
-    [Tooltip("Range up levels multiply the range by 1 plus this.")]
     [SerializeField] private float rangeUp = 0.25f;
 
     public override WeaponState CreateState() => new SwordState();
@@ -57,8 +49,7 @@ public class WBSword : WeaponBehavior
         weapon.TickCooldown(deltaTime);
         SwordState state = weapon.GetState<SwordState>();
 
-        // Not in the middle of an attack: wait for the cooldown, then start one.
-        // The Sword swings whether or not an enemy is near, because the swing is a fixed area in front of the player.
+        // Not attacking: wait for the cooldown, then start an attack
         if (state.SwingsLeft == 0)
         {
             if (!weapon.IsReady) return;
@@ -68,7 +59,7 @@ public class WBSword : WeaponBehavior
             weapon.StartCooldown();
         }
 
-        // Swings of one attack come one after another, a short gap apart.
+        // Swings of one attack come one after another
         state.SwingTimer -= deltaTime;
         if (state.SwingTimer > 0f) return;
 
@@ -84,7 +75,7 @@ public class WBSword : WeaponBehavior
 
         weapon.NotifyAttack();
 
-        // Read each swing, so the sword follows the player if they turn between swings.
+        // Read every swing so the sword follows the player's turns
         Vector3 facing = player.Movement.Facing;
 
         SwingToward(weapon, state, player.Position, facing);
@@ -104,13 +95,13 @@ public class WBSword : WeaponBehavior
         }
     }
 
-    // Damages every enemy within reach AND inside the arc. No colliders: a distance check, then an angle check.
+    // Damages every enemy within reach and inside the arc
     private void HitCone(Weapon weapon, Vector3 origin, Vector3 direction)
     {
         IReadOnlyList<Enemy> enemies = EnemyManager.Instance.Enemies;
         float cosHalfArc = Mathf.Cos(arcAngle * 0.5f * Mathf.Deg2Rad);
 
-        // Backwards: a kill removes that enemy from the list, and going backwards keeps the rest in place.
+        // Backwards, because a kill removes the enemy from the list
         for (int i = enemies.Count - 1; i >= 0; i--)
         {
             Enemy enemy = enemies[i];
@@ -121,8 +112,7 @@ public class WBSword : WeaponBehavior
             float reach = weapon.Range + enemy.Data.ContactRadius;
             if (sqrDistance > reach * reach) continue;
 
-            // Inside the arc if the angle to the enemy is small enough: dot(toEnemy, direction) >= |toEnemy| * cos(half arc).
-            // Comparing like this avoids normalizing. An enemy standing on the player counts as hit.
+            // Inside the arc if the angle is small enough, without normalizing
             if (sqrDistance > 0.0001f && Vector3.Dot(toEnemy, direction) < Mathf.Sqrt(sqrDistance) * cosHalfArc) continue;
 
             enemy.TakeDamage(weapon.Damage);
@@ -136,14 +126,14 @@ public class WBSword : WeaponBehavior
         Projectile effect = ObjectPooler.Instance.ProjectilePool.Get();
         effect.Init(slash, origin + direction * slashOffset, direction, 0f);
 
-        // Remember where it sits relative to the player. If the slash's behavior follows the player, this is the spot it keeps.
+        // Remember where it sits relative to the player
         effect.PlayerOffset = direction * slashOffset;
 
-        // The slash grows with the range upgrades. (Projectile.Init already keeps it upright when it faces left.)
+        // The slash grows with range upgrades
         effect.transform.localScale = Vector3.one * (weapon.Range / weapon.Data.Range);
     }
 
-    // Debug only. The number of swings is the weapon's Count, which the debugger already shows.
+    // Debug only
     public override void DescribeState(Weapon weapon, StringBuilder builder)
     {
         SwordState state = weapon.GetState<SwordState>();
@@ -169,7 +159,7 @@ public class WBSword : WeaponBehavior
                 break;
             case 8:
             case 10:
-                weapon.Count++;   // one more swing per attack
+                weapon.Count++;  // one more swing per attack
                 break;
         }
     }

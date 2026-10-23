@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// A wave that flies straight and damages each enemy once.
+/// </summary>
 [CreateAssetMenu(fileName = "Wave", menuName = "Projectile Behaviors/Wave")]
 public class PBWave : ProjectileBehavior
 {

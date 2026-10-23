@@ -1,14 +1,13 @@
 using UnityEngine;
 
 /// <summary>
-/// A pooled drop on the ground. Sits still until the player comes within the magnet radius, then
-/// flies to the player, speeding up, and is collected when it reaches the player's body.
-/// What collecting does is up to its DropBehavior.
+/// A pooled drop on the ground.
+/// Flies to the player once in magnet range and is collected on reaching them.
 /// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
 public class DropPickup : MonoBehaviour, IPoolable
 {
-    /// <summary>Raised when the player collects a drop, after its effect (EXP, healing) has been applied. The pickup sound listens to it.</summary>
+    /// <summary>Raised when a drop is collected, after its effect is applied.</summary>
     public static event System.Action<DropPickup> OnCollected;
 
     private SpriteRenderer spriteRenderer;
@@ -26,7 +25,7 @@ public class DropPickup : MonoBehaviour, IPoolable
         transform.position = position;
         spriteRenderer.sprite = data.Sprite;
 
-        // A pooled object carries its old state, so reset all of it.
+        // Reset the old pooled state
         IsAttracted = false;
         CurrentSpeed = data.AttractStartSpeed;
     }
@@ -35,7 +34,7 @@ public class DropPickup : MonoBehaviour, IPoolable
     {
         if (!IsAttracted)
         {
-            // Once started, it never stops: a fast player can't outrun a drop that is already flying.
+            // Once started, it never stops
             if ((playerPosition - transform.position).sqrMagnitude > magnetRadius * magnetRadius) return;
             IsAttracted = true;
         }

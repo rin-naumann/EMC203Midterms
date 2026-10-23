@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// An area blast. Damages each enemy in range once.
+/// </summary>
 [CreateAssetMenu(fileName = "Explosion", menuName = "Projectile Behaviors/Explosion")]
 public class PBExplosion : ProjectileBehavior
 {

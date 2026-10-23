@@ -1,9 +1,11 @@
 using UnityEngine;
 
+/// <summary>
+/// Flashes the player's sprite red when hurt and blue when a hit is blocked.
+/// </summary>
 [RequireComponent(typeof(PlayerHealth))]
 public class PlayerHitFlash : MonoBehaviour
 {
-    [Tooltip("The Body's SpriteRenderer. The Body is the child object that holds the player's sprite.")]
     [SerializeField] private SpriteRenderer body;
     [SerializeField] private Color damagedColor = new Color(1f, 0.3f, 0.3f);
     [SerializeField] private Color blockedColor = new Color(0.3f, 0.9f, 1f);
@@ -13,7 +15,7 @@ public class PlayerHitFlash : MonoBehaviour
 
     private void Awake() => health = GetComponent<PlayerHealth>();
 
-    // Static events outlive this object, so always unsubscribe in OnDisable.
+    // Unsubscribe so the events do not keep this object alive
     private void OnEnable()
     {
         health.OnDamaged += HandleDamaged;

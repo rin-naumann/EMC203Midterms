@@ -1,13 +1,16 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// A fireball. Flies straight, damages enemies it hits and can explode or chain to another enemy.
+/// </summary>
 [CreateAssetMenu(fileName = "Fireball", menuName = "Projectile Behaviors/Fireball")]
 public class PBFireball : ProjectileBehavior
 {
     [Header("Explosion")]
-    [Tooltip("A short-lived projectile that deals the area damage and plays the explosion animation. Its Hit Radius is the explosion size.")]
+    [Tooltip("The blast projectile. Its Hit Radius is the explosion size")]
     [SerializeField] private ProjectileData explosion;
-    [Tooltip("Explosion damage as a fraction of the fireball's own damage.")]
+    [Tooltip("Explosion damage as a fraction of the fireball's damage")]
     [SerializeField] private float explosionDamageMultiplier = 0.5f;
 
     public override bool Tick(Projectile projectile, float deltaTime, Vector3 playerPosition)
@@ -39,7 +42,7 @@ public class PBFireball : ProjectileBehavior
             Enemy enemy = enemies[i];
             if (enemy.IsInvulnerable || projectile.HitEnemies.Contains(enemy)) continue;
 
-            // ContactRadius doubles as the enemy's body radius for now. EnemyData has no separate one.
+            // ContactRadius is used as the enemy's body radius
             float reach = projectile.Data.HitRadius + enemy.Data.ContactRadius;
             if ((enemy.transform.position - projectile.transform.position).sqrMagnitude <= reach * reach) return enemy;
         }

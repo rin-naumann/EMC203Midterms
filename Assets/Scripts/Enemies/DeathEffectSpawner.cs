@@ -1,13 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// Shows an enemy's death effect where it dies. Enemy only announces its death and knows nothing about
-/// effects or drops; this is the one place that connects the announcement to the effect.
-/// The effect is a pooled projectile that only plays its animation, so it needs no new pool or manager.
+/// Shows a death effect where an enemy dies.
+/// Uses a pooled projectile that only plays its animation.
 /// </summary>
 public class DeathEffectSpawner : MonoBehaviour
 {
-    // Static events outlive this object, so always unsubscribe in OnDisable.
+    // Unsubscribe so the static event does not keep this object alive
     private void OnEnable() => Enemy.OnEnemyDeath += ShowEffect;
     private void OnDisable() => Enemy.OnEnemyDeath -= ShowEffect;
 
@@ -17,11 +16,11 @@ public class DeathEffectSpawner : MonoBehaviour
         if (effect == null) return;
 
         Projectile shot = ObjectPooler.Instance.ProjectilePool.Get();
-        if (shot == null) return;   // pool is full: skipping a picture is better than breaking a weapon
+        if (shot == null) return;  // pool is full, so skip the effect
 
         shot.Init(effect, enemy.transform.position, Vector3.right, 0f);
 
-        // Init resets the scale of a pooled object, so set it after.
+        // Init resets the scale, so set it after
         shot.transform.localScale = Vector3.one * enemy.Data.DeathEffectScale;
     }
 }

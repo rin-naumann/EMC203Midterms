@@ -1,11 +1,12 @@
 using UnityEngine;
 
+/// <summary>
+/// The player. Holds references to its other scripts and resets them when a new run starts.
+/// </summary>
 public class Player : MonoBehaviour
 {
     public static Player Instance { get; private set; }
 
-    // [SerializeField] is what makes a private field show up in the Inspector. Without it Unity never
-    // fills the field in, so it stays null and everything that reads it throws a NullReferenceException.
     [SerializeField] private PlayerData data;
     private Vector3 startPosition;
 
@@ -16,15 +17,14 @@ public class Player : MonoBehaviour
     public Vector3 Position => transform.position;
     public float HitRadius => data.HitRadius;
 
-    // The live value. It starts from PlayerData, but upgrades change it during a run, and a
-    // ScriptableObject must never be written to at runtime.
+    // The live value, which upgrades can change during a run
     public float PickupRadius { get; set; }
 
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
 
-        // Checked before becoming the Instance, so a missing asset can't leave a half-built singleton behind.
+        // Checked before becoming the Instance so a missing asset leaves nothing half built
         if (data == null)
         {
             Debug.LogError("Player has no PlayerData assigned.", this);

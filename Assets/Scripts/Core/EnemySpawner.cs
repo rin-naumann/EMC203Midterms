@@ -1,12 +1,16 @@
 using UnityEngine;
 
+/// <summary>
+/// Spawns enemies from the spawn schedule just outside the camera view.
+/// Ends the run with a win when the win enemy dies.
+/// </summary>
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private SpawnSchedule schedule;
     [SerializeField] private Camera viewCamera;
     [SerializeField] private float spawnMargin = 2f;
 
-    // Running state. It lives here and not on the schedule, which stays read-only.
+    // Runtime state (the schedule itself is read-only)
     private float[] groupTimers;
     private bool[] eventFired;
     private Enemy winEnemy;
@@ -68,7 +72,7 @@ public class EnemySpawner : MonoBehaviour
             groupTimers[i] -= deltaTime;
             if (groupTimers[i] > 0f) continue;
 
-            // Add the interval instead of setting it, so any overshoot carries over and the rhythm doesn't drift.
+            // Keeps the spawn rhythm steady
             groupTimers[i] += group.Interval;
             SpawnBatch(group, time);
         }

@@ -2,34 +2,29 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// An endless ground. Keeps the area around the camera (plus a margin) filled with tiles and clears the tiles
-/// that fall behind, so the Tilemap never holds more than a screenful no matter how far the player walks.
-/// Which tile goes in a cell is decided by a hash of the cell's coordinates, not by remembering what was placed,
-/// so nothing is stored and a cell always gets the same tile.
+/// An endless ground. Fills tiles around the camera and clears the ones left behind.
+/// Each cell always gets the same tile, picked from its coordinates.
 /// </summary>
 public class BackgroundManager : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
-    [Tooltip("Leave empty to use the main camera.")]
     [SerializeField] private Camera targetCamera;
 
     [Header("Tiles")]
-    [Tooltip("The clean ground tiles (the top 4 rows of the sheet).")]
     [SerializeField] private Sprite[] plainSprites;
-    [Tooltip("The tiles with pebbles, flowers or stone (the bottom 4 rows).")]
     [SerializeField] private Sprite[] decoratedSprites;
-    [Tooltip("Chance for a cell to use a decorated tile. 0.1 is 10%.")]
+    [Tooltip("Chance for a cell to use a decorated tile (0.1 = 10%)")]
     [SerializeField, Range(0f, 1f)] private float decoratedChance = 0.12f;
 
     [Header("Area")]
-    [Tooltip("Extra cells filled beyond the screen edge on every side, so a tile exists before it can be seen.")]
+    [Tooltip("Extra cells filled past the screen edge")]
     [SerializeField] private int margin = 2;
 
     private Tile[] plainTiles;
     private Tile[] decoratedTiles;
     private int seed;
 
-    // The cells currently filled, as an inclusive rectangle.
+    // The cells currently filled
     private bool hasArea;
     private int minX, minY, maxX, maxY;
 
@@ -37,19 +32,18 @@ public class BackgroundManager : MonoBehaviour
     {
         if (targetCamera == null) targetCamera = Camera.main;
 
-        // The Tilemap places Tile assets, not sprites. Building them here means you can drag the sliced sprites
-        // straight into the lists, with no Tile Palette step.
+        // Tilemaps place Tile assets, so build them from the sprites
         plainTiles = MakeTiles(plainSprites);
         decoratedTiles = MakeTiles(decoratedSprites);
     }
 
-    // Static events outlive this object, so always unsubscribe in OnDisable.
+    // Unsubscribe so the static event does not keep this object alive
     private void OnEnable() => GameManager.OnRunStarted += Rebuild;
     private void OnDisable() => GameManager.OnRunStarted -= Rebuild;
 
     private void Start() => Rebuild();
 
-    // New run: a new seed gives a different ground, and the old tiles are thrown away.
+    // New run: new seed and a fresh ground
     private void Rebuild()
     {
         seed = Random.Range(int.MinValue, int.MaxValue);
@@ -58,28 +52,28 @@ public class BackgroundManager : MonoBehaviour
         Refresh();
     }
 
-    // After the camera has moved this frame, so the ground is never a frame behind it.
+    // After the camera has moved
     private void LateUpdate() => Refresh();
 
     private void Refresh()
     {
         if (targetCamera == null || tilemap == null) return;
 
-        // The visible area in world units, from the camera. Read every frame, so a resized window just works.
+        // Visible area in world units
         Vector3 center = targetCamera.transform.position;
         float halfHeight = targetCamera.orthographicSize;
         float halfWidth = halfHeight * targetCamera.aspect;
 
-        // To cells, then widened by the margin.
+        // Convert to cells and add the margin
         Vector3Int low = tilemap.WorldToCell(new Vector3(center.x - halfWidth, center.y - halfHeight, 0f));
         Vector3Int high = tilemap.WorldToCell(new Vector3(center.x + halfWidth, center.y + halfHeight, 0f));
         int newMinX = low.x - margin, newMinY = low.y - margin;
         int newMaxX = high.x + margin, newMaxY = high.y + margin;
 
-        // Most frames the camera is still inside the same cells, so there is nothing to do.
+        // Nothing to do if the camera is in the same cells
         if (hasArea && newMinX == minX && newMinY == minY && newMaxX == maxX && newMaxY == maxY) return;
 
-        // Fill the cells that are new...
+        // Fill the new cells
         for (int x = newMinX; x <= newMaxX; x++)
             for (int y = newMinY; y <= newMaxY; y++)
             {
@@ -87,7 +81,7 @@ public class BackgroundManager : MonoBehaviour
                 tilemap.SetTile(new Vector3Int(x, y, 0), PickTile(x, y));
             }
 
-        // ...and clear the ones that were left behind.
+        // Clear the cells left behind
         if (hasArea)
             for (int x = minX; x <= maxX; x++)
                 for (int y = minY; y <= maxY; y++)
@@ -106,7 +100,7 @@ public class BackgroundManager : MonoBehaviour
     {
         uint hash = Hash(x, y, seed);
 
-        // Two independent-looking pieces of the same hash: the low half decides plain or decorated, the high half which tile.
+        // Low half picks plain or decorated, high half picks the tile
         bool decorated = decoratedTiles.Length > 0 && (hash & 0xFFFF) / 65535f < decoratedChance;
         Tile[] pool = decorated ? decoratedTiles : plainTiles;
         if (pool.Length == 0) return null;
@@ -114,7 +108,7 @@ public class BackgroundManager : MonoBehaviour
         return pool[(int)((hash >> 16) % (uint)pool.Length)];
     }
 
-    // Turns a cell and the seed into a well-scrambled number. The same input always gives the same output.
+    // The same cell and seed always give the same number
     private static uint Hash(int x, int y, int seed)
     {
         unchecked

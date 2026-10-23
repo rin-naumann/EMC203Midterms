@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// An enemy projectile. Flies straight and damages the player on contact.
+/// </summary>
 [CreateAssetMenu(fileName = "Enemy", menuName = "Projectile Behaviors/Enemy")]
 public class PBEnemy : ProjectileBehavior
 {

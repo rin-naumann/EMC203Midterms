@@ -3,11 +3,9 @@ using System.Text;
 using UnityEngine;
 
 /// <summary>
-/// TEMPORARY. Test readout and debug keys. Delete it once testing is done.
-///   N = skip forward   T = cycle game speed   K = kill the slime (tests the win)   X = kill every other enemy
-///   L = level up every weapon   1, 2, 3 = give / level up that test weapon
-///   E = add EXP   H = heal to full   J = hurt the player
-/// The movement keys (W A S D) are left alone on purpose.
+/// TEMPORARY. Shows a debug readout and adds keys for testing. Delete when testing is done.
+/// N skip time, T game speed, K kill the slime, X kill other enemies, L level up weapons,
+/// 1-3 add or level a test weapon, E add EXP, H heal, J hurt the player.
 /// </summary>
 public class RunDebugger : MonoBehaviour
 {
@@ -15,7 +13,6 @@ public class RunDebugger : MonoBehaviour
 
     [SerializeField] private float refreshInterval = 0.5f;
     [SerializeField] private float skipSeconds = 60f;
-    [Tooltip("Keys 1, 2, 3... give the player that weapon, or raise it one level if they already have it.")]
     [SerializeField] private WeaponData[] testWeapons;
     [SerializeField] private int expAmount = 25;
     [SerializeField] private float hurtAmount = 10f;
@@ -34,7 +31,7 @@ public class RunDebugger : MonoBehaviour
     {
         HandleKeys();
 
-        // Unscaled, so the numbers stay honest while the game speed is turned up.
+        // Unscaled, so the numbers stay correct at any game speed
         float frameTime = Time.unscaledDeltaTime;
         frames++;
         windowTime += frameTime;
@@ -59,7 +56,7 @@ public class RunDebugger : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.Alpha1 + i)) WeaponManager.Instance.AddOrLevelUp(testWeapons[i]);
         }
 
-        // Not while paused: changing timeScale then would un-freeze the game.
+        // Not while paused
         if (Input.GetKeyDown(KeyCode.T) && GameManager.Instance.IsPlaying)
         {
             scaleIndex = (scaleIndex + 1) % TimeScales.Length;
@@ -83,15 +80,13 @@ public class RunDebugger : MonoBehaviour
         {
             if (!(enemies[i].Data.Behavior is EBSlime)) continue;
 
-            // Killing removes it from the list, so stop looking right away.
-            // Does nothing while the slime is in the air, because it can't be hurt then.
+            // Stop after the first slime
             enemies[i].TakeDamage(float.MaxValue);
             return;
         }
     }
 
-    // Kills everything except the slime, so it also tests the drops. An enemy still inside its
-    // short hit invulnerability survives, so press it twice if one is left.
+    // Kills every enemy except the slime
     private void KillOthers()
     {
         IReadOnlyList<Enemy> enemies = EnemyManager.Instance.Enemies;
@@ -103,8 +98,7 @@ public class RunDebugger : MonoBehaviour
         }
     }
 
-    // The text is rebuilt a couple of times a second, not every frame, so the readout itself
-    // doesn't create garbage or skew the numbers it is measuring.
+    // Rebuilt twice a second, not every frame
     private void Refresh()
     {
         builder.Clear();
@@ -196,7 +190,7 @@ public class RunDebugger : MonoBehaviour
             builder.Append('\n');
         }
 
-        // Test weapons the player doesn't have yet, so the number keys are easy to find.
+        // Test weapons the player does not own yet
         for (int i = 0; i < testWeapons.Length; i++)
         {
             if (testWeapons[i] == null || WeaponManager.Instance.Find(testWeapons[i]) != null) continue;
@@ -212,7 +206,7 @@ public class RunDebugger : MonoBehaviour
             style.normal.textColor = Color.white;
         }
 
-        // A dark backdrop so the text stays readable over any scene.
+        // Dark backdrop so the text is readable
         Rect area = new Rect(6f, 6f, 1100f, 230f);
         GUI.color = new Color(0f, 0f, 0f, 0.6f);
         GUI.DrawTexture(area, Texture2D.whiteTexture);

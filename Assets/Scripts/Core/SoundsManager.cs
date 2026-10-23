@@ -1,20 +1,17 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 using System.Collections.Generic;
 
 /// <summary>
-/// One sound the game can play: its clips, loudness and how often it may repeat. Plain data, so a weapon
-/// can carry its own attack sound in its WeaponData and the manager does not need to know about weapons.
+/// One sound the game can play: its clips, volume and repeat limit.
 /// </summary>
 [System.Serializable]
 public class SoundEffect
 {
-    [Tooltip("One of these is picked at random each time, so a repeated sound doesn't feel identical. One clip is fine.")]
+    [Tooltip("One is picked at random each time")]
     [SerializeField] private AudioClip[] clips;
     [SerializeField, Range(0f, 1f)] private float volume = 1f;
-    [Tooltip("The sound can't play again until this many seconds have passed. Stops many kills in the same moment from becoming noise. 0 means no limit.")]
+    [Tooltip("The sound cannot repeat until this many seconds pass (0 = no limit)")]
     [SerializeField] private float minInterval = 0f;
-    [Tooltip("Random pitch change, plus or minus. 0.05 is 5%.")]
     [SerializeField, Range(0f, 0.3f)] private float pitchVariation = 0.05f;
 
     public float Volume => volume;
@@ -25,12 +22,9 @@ public class SoundEffect
 }
 
 /// <summary>
-/// Plays every sound and the music, on two separate channels (music and sound effects) that each have their own
-/// volume, under one master volume. Gameplay scripts never call it: it listens to the events they already
-/// raise (a kill, a hit, a level-up, a state change) and decides what to play. The one exception is the UI,
-/// which asks for the click sound and sets the volumes.
-/// The music follows the run: the menu track, then the early track, the late track once the run reaches a set time, and
-/// the boss track when the slime appears. Tracks crossfade into each other.
+/// Plays all music and sound effects. Music and effects have their own volume under one master volume.
+/// Listens to game events to decide what to play.
+/// Music goes menu, early, late, then boss, and crossfades between tracks.
 /// </summary>
 public class SoundsManager : MonoBehaviour
 {
@@ -38,57 +32,42 @@ public class SoundsManager : MonoBehaviour
 
     [Header("Music")]
     [SerializeField] private AudioClip menuMusic;
-    [Tooltip("The first part of the run.")]
-    [FormerlySerializedAs("gameplayMusic")]
     [SerializeField] private AudioClip earlyMusic;
-    [Tooltip("The second part of the run, from the time below until the slime appears. Leave empty to keep playing the early track.")]
     [SerializeField] private AudioClip lateMusic;
-    [Tooltip("Run time, in seconds, when the late track takes over. 180 is when the Orcs and Demons arrive.")]
     [SerializeField] private float lateMusicStartsAt = 180f;
-    [Tooltip("From the moment the slime appears until the run ends. Leave empty to keep the current track.")]
     [SerializeField] private AudioClip bossMusic;
-    [Tooltip("How loud the music is at full music volume, before the player's sliders.")]
-    [FormerlySerializedAs("musicVolume")]
     [SerializeField, Range(0f, 1f)] private float musicLoudness = 0.5f;
-    [Tooltip("Music loudness while paused or choosing an upgrade, as a fraction of normal.")]
+    [Tooltip("Music volume while paused or choosing an upgrade, as a fraction")]
     [SerializeField, Range(0f, 1f)] private float pausedMusicScale = 0.4f;
-    [Tooltip("Seconds a track takes to fade out as the next fades in.")]
     [SerializeField] private float crossfadeSeconds = 2f;
-    [Tooltip("Seconds the music takes to fade out when the run ends (a win or game over).")]
     [SerializeField] private float endFadeSeconds = 0.5f;
 
     [Header("Sound effects")]
     [SerializeField] private SoundEffect click;
-    [Tooltip("An enemy was hurt but survived. Heard very often, so give it a short Min Interval (about 0.05).")]
     [SerializeField] private SoundEffect enemyHit;
     [SerializeField] private SoundEffect enemyDeath;
     [SerializeField] private SoundEffect playerHurt;
-    [Tooltip("The Shield blocked a hit completely.")]
     [SerializeField] private SoundEffect playerBlocked;
     [SerializeField] private SoundEffect levelUp;
-    [Tooltip("The player collects a drop (an EXP gem or a heart). Gems arrive in streams, so give it a short Min Interval (about 0.05).")]
     [SerializeField] private SoundEffect pickup;
-    [Tooltip("The slime lands.")]
     [SerializeField] private SoundEffect slam;
-    [Tooltip("Played once when the player wins.")]
     [SerializeField] private SoundEffect win;
-    [Tooltip("Played once when the player dies.")]
     [SerializeField] private SoundEffect lose;
 
     [Header("Voices")]
-    [Tooltip("How many sound effects can play at the same time. When they are all busy, the oldest is cut off.")]
+    [Tooltip("How many sound effects can play at once")]
     [SerializeField] private int voices = 12;
 
     private const string MasterKey = "MasterVolume";
     private const string MusicKey = "MusicVolume";
     private const string SfxKey = "SfxVolume";
 
-    // Two music sources, so one track can fade out while the next fades in.
+    // Two music sources so one can fade out while the other fades in
     private class MusicChannel
     {
         public AudioSource source;
-        public float fade;      // 0 silent, 1 full
-        public float target;    // where the fade is heading
+        public float fade;  // 0 silent, 1 full
+        public float target;  // where the fade is heading
     }
 
     private readonly MusicChannel[] channels = new MusicChannel[2];
@@ -100,8 +79,7 @@ public class SoundsManager : MonoBehaviour
     private AudioSource[] voiceSources;
     private int nextVoice;
 
-    // When each limited sound last played. Kept here and not on the SoundEffect, because that is data shared
-    // with the asset and would remember the last play across Play-mode sessions.
+    // When each limited sound last played
     private readonly Dictionary<SoundEffect, float> lastPlayed = new Dictionary<SoundEffect, float>();
 
     private bool bossActive;
@@ -130,7 +108,7 @@ public class SoundsManager : MonoBehaviour
         }
         fadeSeconds = crossfadeSeconds;
 
-        // A fixed set of sources used in turn, so the number of simultaneous sounds can never grow without limit.
+        // A fixed set of sources, so sounds cannot pile up endlessly
         voiceSources = new AudioSource[Mathf.Max(1, voices)];
         for (int i = 0; i < voiceSources.Length; i++)
         {
@@ -144,7 +122,7 @@ public class SoundsManager : MonoBehaviour
         AudioListener.volume = Volume;
     }
 
-    // Static events outlive this object, so always unsubscribe in OnDisable.
+    // Unsubscribe so the static events do not keep this object alive
     private void OnEnable()
     {
         GameManager.OnStateChanged += HandleState;
@@ -169,11 +147,10 @@ public class SoundsManager : MonoBehaviour
         EBSlime.OnSlimeSpawned -= HandleSlimeSpawned;
     }
 
-    // The player's own events are on the player object, which exists by now, so they are hooked here.
+    // Hooked here because the player exists by now
     private void Start()
     {
-        // Load every music track now, while the title screen is showing, so the first play of a track
-        // in the middle of a run doesn't have to load it then.
+        // Load the music now so playing it later does not lag
         PreloadMusic(menuMusic);
         PreloadMusic(earlyMusic);
         PreloadMusic(lateMusic);
@@ -189,7 +166,7 @@ public class SoundsManager : MonoBehaviour
         experience.OnLevelUp += HandleLevelUp;
     }
 
-    // Does nothing for a clip that is already loaded or loading, such as one with Preload Audio Data ticked in its import settings.
+    // Skips clips that are already loaded
     private static void PreloadMusic(AudioClip clip)
     {
         if (clip != null && clip.loadState == AudioDataLoadState.Unloaded) clip.LoadAudioData();
@@ -255,8 +232,7 @@ public class SoundsManager : MonoBehaviour
 
     // ---- Music ----
 
-    // Every frame: work out which track the game wants right now, switch if it changed, and move the fades along.
-    // The wanted track comes from the game's state and clock, so there is only one place that decides it.
+    // Picks the wanted track, switches if it changed, and moves the fades
     private void UpdateMusic()
     {
         if (GameManager.Instance == null) return;
@@ -264,7 +240,7 @@ public class SoundsManager : MonoBehaviour
         AudioClip wanted = ChooseTrack();
         if (wanted != currentTrack) CrossfadeTo(wanted);
 
-        // Unscaled time: the game is frozen (timeScale 0) on the title screen, when paused and when it ends, and the fades still need to finish.
+        // Unscaled time, so fades finish while the game is frozen
         float step = Time.unscaledDeltaTime / Mathf.Max(0.01f, fadeSeconds);
         float level = musicLoudness * MusicVolume * (musicDucked ? pausedMusicScale : 1f);
 
@@ -274,7 +250,7 @@ public class SoundsManager : MonoBehaviour
             channel.fade = Mathf.MoveTowards(channel.fade, channel.target, step);
             channel.source.volume = level * channel.fade;
 
-            // Faded all the way out: stop it, so it isn't decoding sound nobody hears.
+            // Stop fully faded out channels
             if (channel.fade <= 0f && channel.target <= 0f && channel.source.isPlaying) channel.source.Stop();
         }
     }
@@ -288,12 +264,12 @@ public class SoundsManager : MonoBehaviour
             case GameState.Title:
                 return menuMusic;
 
-            // The run is over: silence, so the win or game over jingle can be heard.
+            // Run over: silence so the jingle can be heard
             case GameState.Win:
             case GameState.Lose:
                 return null;
 
-            // Playing, paused and choosing an upgrade are all "in the run": the same track keeps going.
+            // Playing, paused and level-up share the same track
             default:
                 if (bossActive && bossMusic != null) return bossMusic;
                 if (lateMusic != null && gameManager.ElapsedTime >= lateMusicStartsAt) return lateMusic;
@@ -306,11 +282,11 @@ public class SoundsManager : MonoBehaviour
         currentTrack = clip;
         fadeSeconds = clip == null ? endFadeSeconds : crossfadeSeconds;
 
-        // Whatever is playing fades out...
+        // Fade out what is playing...
         for (int i = 0; i < channels.Length; i++) channels[i].target = 0f;
         if (clip == null) return;
 
-        // ...while the new track starts on the other source and fades in.
+        // ...and fade in the new track on the other source
         activeChannel = 1 - activeChannel;
         MusicChannel next = channels[activeChannel];
         next.source.clip = clip;
@@ -343,7 +319,7 @@ public class SoundsManager : MonoBehaviour
         }
     }
 
-    // A new run starts with the early track again, even if the last one ended on the boss music.
+    // A new run starts with the early track again
     private void HandleRunStarted() => bossActive = false;
 
     private void HandleSlimeSpawned() => bossActive = true;

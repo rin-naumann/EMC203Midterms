@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Data for one type of projectile: its look, behavior and stats.
+/// </summary>
 [CreateAssetMenu(fileName = "New Projectile", menuName = "Projectile")]
 public class ProjectileData : ScriptableObject
 {

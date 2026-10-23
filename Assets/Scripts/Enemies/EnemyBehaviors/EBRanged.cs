@@ -1,8 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Walks toward the player until it is within half of attackRange, and shoots whenever the player
-/// is inside attackRange. Between half range and full range it does both: it walks and shoots.
+/// Walks toward the player until within half of its attack range, and shoots while the player is in range.
 /// </summary>
 [CreateAssetMenu(fileName = "Ranged", menuName = "Enemy Behaviors/Ranged")]
 public class EBRanged : EnemyBehavior
@@ -12,7 +11,7 @@ public class EBRanged : EnemyBehavior
     [SerializeField] private float attackRange = 5f;
     [SerializeField] private ProjectileData projectile;
 
-    // UTIL: A random head start on the cooldown, so enemies spawned together don't all fire on the same frame.
+    // Random head start on the cooldown so enemies do not all fire together
     public override void OnInit(Enemy enemy)
     {
         enemy.AttackTimer = Random.value * enemy.Data.AttackCooldown;

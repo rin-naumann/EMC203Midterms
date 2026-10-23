@@ -1,6 +1,9 @@
 using UnityEngine;
 using System;
 
+/// <summary>
+/// Tracks the player's EXP and level, and raises events on level-up.
+/// </summary>
 public class PlayerExperience : MonoBehaviour
 {
     public event Action<int, int> OnExpChanged;
@@ -46,7 +49,7 @@ public class PlayerExperience : MonoBehaviour
         OnExpChanged?.Invoke(CurrentExp, ExpToNextLevel);
     }
 
-    /// <summary>The upgrade screen calls this once per choice the player makes. False if none are waiting.</summary>
+    /// <summary>Used by the upgrade screen once per choice. Returns false if none are waiting.</summary>
     public bool ConsumePendingLevelUp()
     {
         if (PendingLevelUps <= 0) return false;

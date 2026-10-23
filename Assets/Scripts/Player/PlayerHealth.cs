@@ -3,14 +3,14 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// The player's HP. It only tracks health and raises events. The HP bar, screen shake and red flash
-/// are separate scripts that listen to the events, so none of that feedback lives here.
+/// Tracks the player's HP, damage, healing and regeneration.
+/// Raises events for other scripts to react to.
 /// </summary>
 public class PlayerHealth : MonoBehaviour, IDamageable
 {
     public event Action<float, float> OnHealthChanged;
     public event Action<float> OnDamaged;
-    /// <summary>A hit was completely blocked (the Shield's immunity). No damage was taken, but the short invulnerability still starts.</summary>
+    /// <summary>Raised when a hit is completely blocked.</summary>
     public event Action OnBlocked;
     public event Action OnDied;
 
@@ -31,13 +31,10 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     public bool IsInvulnerable => invulnerabilityTimer > 0f;
     public float HitInvulnerability => hitInvulnerability;
     public float SecondsUntilRegen => Mathf.Max(0f, regenDelay - timeSinceHit);
-    /// <summary>How long the no-regeneration wait lasts after a hit. The HP bar's ghost drains over exactly this long.</summary>
+    /// <summary>Seconds after a hit before regeneration starts.</summary>
     public float RegenDelay => regenDelay;
 
-    /// <summary>
-    /// Optional hook: takes the incoming damage and returns what should actually be taken (0 blocks it).
-    /// PlayerHealth doesn't know what sits behind it. At the moment that is the weapons (the Shield).
-    /// </summary>
+    /// <summary>Optional hook that returns the damage that should actually be taken (0 blocks it).</summary>
     public Func<float, float> DamageFilter;
 
     public void Init(float max, float invulnerabilityTime, float regenAfter, float regenRate)
@@ -63,12 +60,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (invulnerabilityTimer > 0f) invulnerabilityTimer -= Time.deltaTime;
         if (isDead) return;
 
-        // Regenerates only after a quiet spell. Every hit, even a blocked one, restarts the wait.
+        // Regenerates after a quiet spell. Every hit restarts the wait
         timeSinceHit += Time.deltaTime;
         if (timeSinceHit >= regenDelay && currentHealth < maxHealth) Heal(regenPerSecond * Time.deltaTime);
     }
 
-    /// <summary>Restores health, up to the maximum. Used by regeneration and by heal drops. Does nothing once dead.</summary>
+    /// <summary>Restores health up to the maximum.</summary>
     public void Heal(float amount)
     {
         if (isDead || amount <= 0f) return;
@@ -83,7 +80,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
         if (DamageFilter != null) damage = DamageFilter(damage);
 
-        // Even a fully blocked hit counts as a hit, so the short invulnerability starts either way.
+        // A blocked hit still starts the invulnerability
         invulnerabilityTimer = hitInvulnerability;
         timeSinceHit = 0f;
         if (damage <= 0f)

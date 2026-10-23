@@ -17,9 +17,9 @@ MonoBehaviour:
   sprite: {fileID: -6717884257390833292, guid: 8b8655c9286af984d98cbe4a4aa94cb3, type: 3}
   behavior: {fileID: 11400000, guid: 8782fafbdcde0cb4094d81cfa0bd8898, type: 2}
   maxLevel: 10
-  damage: 0.8
-  cooldown: 3
-  count: 1
+  damage: 1
+  cooldown: 1
+  count: 2
   range: 1
   attackSound:
     clips:
